@@ -1,41 +1,68 @@
 package kr.heja.exam.sms;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
+import android.content.IntentFilter;
+import android.os.Handler;
+import android.os.Message;
+import android.provider.Telephony;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
+import android.widget.TextView;
 
 /**
  * 동적 SMS리시버 설정 예제.
  */
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
+	private static final String TAG = "MainActivity";
+
+	private SmsReceiver mSmsReceiver;
+
+	private TextView tvReceiveDate;
+	private TextView tvSenderNumber;
+	private TextView tvReceiveMessage;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		init();
+
+		// Receiver 등록
+		IntentFilter intentFilter = new IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION);
+		Handler smsHandler = new SmsHandler();
+		mSmsReceiver = new SmsReceiver(smsHandler);
+
+		registerReceiver(mSmsReceiver, intentFilter);
+		Log.d(TAG, "SMS Receiver 등록");
 	}
 
-
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.menu_main, menu);
-		return true;
+	protected void onDestroy() {
+		unregisterReceiver(mSmsReceiver);
+		Log.d(TAG, "SMS Receiver 해제");
+		super.onDestroy();
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
+	private void init() {
+		tvReceiveDate = (TextView) findViewById(R.id.tvReceiveDate);
+		tvSenderNumber = (TextView) findViewById(R.id.tvSenderNumber);
+		tvReceiveMessage = (TextView) findViewById(R.id.tvReceiveMessage);
+	}
 
-		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_settings) {
-			return true;
+	private class SmsHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg) {
+			if (Const.WHAT_SMS_HANDLER == msg.what) {
+				Bundle data = msg.getData();
+				long datetime = data.getLong(Const.KEY_SMS_DATE);
+				String senderNumber = data.getString(Const.KEY_SMS_SENDER);
+				String messageBody = data.getString(Const.KEY_SMS_MESSAGE);
+
+				tvReceiveDate.setText(datetime + "");
+				tvSenderNumber.setText(senderNumber);
+				tvReceiveMessage.setText(messageBody);
+			}
 		}
-
-		return super.onOptionsItemSelected(item);
 	}
 }

@@ -1,6 +1,7 @@
 <resources>
 	<string name="app_name">문자수신예제</string>
 
-	<string name="hello_world">Hello world!</string>
-	<string name="action_settings">Settings</string>
+	<string name="label_receive_date">수신일자</string>
+	<string name="label_sender_number">발신자</string>
+	<string name="label_receive_message">수신내용</string>
 </resources>
