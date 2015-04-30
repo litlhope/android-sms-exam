@@ -1,6 +1,7 @@
 package kr.heja.exam.sms;
 
 /**
+ * SMS Receiver에서 사용 할 상수 정의
  * Created by litlhope on 15. 4. 30..
  */
 public class Const {
